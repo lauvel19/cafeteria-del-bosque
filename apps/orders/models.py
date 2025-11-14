@@ -99,15 +99,16 @@ class OrderItem(models.Model):
         return f"{self.quantity}x {self.product.name}"
 
     def save(self, *args, **kwargs):
-        """Calcular subtotal antes de guardar"""
-        if not self.unit_price:
-            self.unit_price = self.product.base_price
+        # Asegurar precio base
+        if self.unit_price is None:
+            self.unit_price = self.product.base_price or Decimal('0.00')
 
-        # Calcular precio de extras
-        self.extras_price = self.product.get_extras_price(self.extras)
+        # Asegurar extras
+        extras_price = self.product.get_extras_price(self.extras or {}) or Decimal('0.00')
+        self.extras_price = extras_price
 
         # Calcular subtotal
-        self.subtotal = (self.unit_price + self.extras_price) * self.quantity
+        self.subtotal = (self.unit_price + extras_price) * self.quantity
 
         super().save(*args, **kwargs)
 

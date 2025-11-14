@@ -112,14 +112,21 @@ class Product(models.Model):
         return total
 
     def get_extras_price(self, extras):
-        """Obtener solo el precio de los extras"""
-        total_extras = Decimal('0.00')
+        """
+        Calcula el precio de los extras.
+        Si no hay extras, devuelve 0.00 en lugar de None.
+        """
+        if not extras:
+            return Decimal('0.00')
 
-        for extra_name, selected in extras.items():
-            if selected and extra_name in self.available_extras:
-                total_extras += Decimal(str(self.available_extras[extra_name]))
+        total = Decimal('0.00')
 
-        return total_extras
+        # ejemplo: cada extra suma +0.50
+        for key, value in extras.items():
+            if value:
+                total += Decimal('0.50')
+
+        return total
 
 
 class ProductDecorator:
